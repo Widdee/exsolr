@@ -24,6 +24,16 @@ defmodule Exsolr.Searcher do
   end
 
   @doc """
+  Receives the query params, converts them to an url, queries Solr and returns the raw response
+  """
+  def get_raw(params) do
+    params
+    |> build_solr_query()
+    |> do_search()
+    |> Poison.decode!()
+  end
+
+  @doc """
   Builds the solr url query. It will use the following default values if they
   are not specifier
 
@@ -70,9 +80,6 @@ defmodule Exsolr.Searcher do
     |> Enum.reject(fn(x) -> x == nil end)
     |> Enum.join("&")
   end
-  defp build_solr_query_parameter(:q, value) do
-    "q=#{URI.encode_www_form(value)}"
-  end
   defp build_solr_query_parameter(key, value) do
     [Atom.to_string(key), value]
     |> Enum.join("=")
@@ -87,20 +94,12 @@ defmodule Exsolr.Searcher do
 
   defp build_solr_url(solr_query) do
     url = Config.select_url <> solr_query
-    _ = Logger.debug url
+    Logger.debug url
     url
   end
 
   defp extract_response(solr_response) do
-    case solr_response |> Poison.decode do
-      {:ok, %{"response" => response, "moreLikeThis" => moreLikeThis}} -> Map.put(response, "mlt", extract_mlt_result(moreLikeThis))
-      {:ok, %{"response" => response}} -> response
-    end
-  end
-
-  defp extract_mlt_result(mlt) do 
-    result =
-    for k <- Map.keys(mlt), do: get_in(mlt, [k, "docs"])
-    result |> List.flatten
+    {:ok, %{"response" => response}} = solr_response |> Poison.decode
+    response
   end
 end
