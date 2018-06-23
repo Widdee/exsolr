@@ -44,6 +44,16 @@ defmodule Exsolr.Config do
   """
   def update_url, do: "#{base_url}/update"
 
+  @doc """
+  Returns the base url to interact with the solr schema api
+
+  ## Examples
+
+      iex> Exsolr.Config.schema_url
+      "http://localhost:8983/solr/elixir_test/schema"
+  """
+  def schema_url, do: "#{base_url}/schema"
+
   defp base_url, do: "http://#{hostname}:#{port}/solr/#{core}"
 end
 
