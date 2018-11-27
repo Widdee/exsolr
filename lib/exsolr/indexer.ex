@@ -9,7 +9,7 @@ defmodule Exsolr.Indexer do
   def add(document) do
     json_docs_update_url
     |> HTTPoison.post(encode(document), json_headers)
-    |> HttpResponse.body
+    |> HttpResponse.body()
   end
 
   @doc """
@@ -34,26 +34,26 @@ defmodule Exsolr.Indexer do
 
   https://wiki.apache.org/solr/FAQ#How_can_I_delete_all_documents_from_my_index.3F
   """
-  def delete_all do
+  def delete_all() do
     update_request(xml_headers, delete_all_xml_body)
-    commit
+    commit()
   end
 
   @doc """
   Commit changes into Solr
   """
-  def commit do
+  def commit() do
     update_request(xml_headers, commit_xml_body)
   end
 
   defp update_request(headers, body) do
-    Config.update_url
+    Config.update_url()
     |> HTTPoison.post(body, headers)
-    |> HttpResponse.body
+    |> HttpResponse.body()
   end
 
-  defp json_headers, do: [{"Content-Type", "application/json"}]
-  defp xml_headers, do: [{"Content-type", "text/xml; charset=utf-8"}]
+  defp json_headers(), do: [{"Content-Type", "application/json"}]
+  defp xml_headers(), do: [{"Content-type", "text/xml; charset=utf-8"}]
 
   @doc """
   Builds the delete_by_id request body
@@ -67,25 +67,27 @@ defmodule Exsolr.Indexer do
       ~s({"delete":{"id":"42"}})
 
   """
-  def delete_by_id_json_body(id) when is_integer(id)  do
+  def delete_by_id_json_body(id) when is_integer(id) do
     id
     |> Integer.to_string()
     |> delete_by_id_json_body
   end
+
   def delete_by_id_json_body(id) do
-    {:ok, body} = %{delete: %{id: id}}
-                  |> Poison.encode
+    {:ok, body} =
+      %{delete: %{id: id}}
+      |> Jason.encode()
 
     body
   end
 
-  defp delete_all_xml_body, do: "<delete><query>*:*</query></delete>"
-  defp commit_xml_body, do: "<commit/>"
+  defp delete_all_xml_body(), do: "<delete><query>*:*</query></delete>"
+  defp commit_xml_body(), do: "<commit/>"
 
-  defp json_docs_update_url, do: "#{Config.update_url}/json/docs"
+  defp json_docs_update_url, do: "#{Config.update_url()}/json/docs"
 
   defp encode(document) do
-    {:ok, body} = Poison.encode(document)
+    {:ok, body} = Jason.encode(document)
     body
   end
 end

@@ -30,7 +30,7 @@ defmodule Exsolr.Searcher do
     params
     |> build_solr_query()
     |> do_search()
-    |> Poison.decode!()
+    |> Jason.decode!()
   end
 
   @doc """
@@ -61,7 +61,7 @@ defmodule Exsolr.Searcher do
   defp build_solr_query_params(params) do
     params
     |> add_default_params
-    |> Enum.map(fn({key, value}) -> build_solr_query_parameter(key, value) end)
+    |> Enum.map(fn {key, value} -> build_solr_query_parameter(key, value) end)
     |> Enum.join("&")
   end
 
@@ -75,11 +75,13 @@ defmodule Exsolr.Searcher do
   end
 
   defp build_solr_query_parameter(_, []), do: nil
-  defp build_solr_query_parameter(key, [head|tail]) do
+
+  defp build_solr_query_parameter(key, [head | tail]) do
     [build_solr_query_parameter(key, head), build_solr_query_parameter(key, tail)]
-    |> Enum.reject(fn(x) -> x == nil end)
+    |> Enum.reject(fn x -> x == nil end)
     |> Enum.join("&")
   end
+
   defp build_solr_query_parameter(key, value) do
     [Atom.to_string(key), value]
     |> Enum.join("=")
@@ -88,18 +90,18 @@ defmodule Exsolr.Searcher do
   def do_search(solr_query) do
     solr_query
     |> build_solr_url
-    |> HTTPoison.get
-    |> HttpResponse.body
+    |> HTTPoison.get()
+    |> HttpResponse.body()
   end
 
   defp build_solr_url(solr_query) do
-    url = Config.select_url <> solr_query
-    Logger.debug url
+    url = Config.select_url() <> solr_query
+    Logger.debug(url)
     url
   end
 
   defp extract_response(solr_response) do
-    {:ok, %{"response" => response}} = solr_response |> Poison.decode
+    {:ok, %{"response" => response}} = solr_response |> Jason.decode()
     response
   end
 end

@@ -8,10 +8,10 @@ defmodule Exsolr.Schema do
   alias Exsolr.Config
   alias Exsolr.HttpResponse
 
-  def get do
+  def get() do
     Config.schema_url()
-    |> HTTPoison.get
-    |> HttpResponse.body
+    |> HTTPoison.get()
+    |> HttpResponse.body()
     |> extract_response()
   end
 
@@ -21,11 +21,11 @@ defmodule Exsolr.Schema do
   def post(data) do
     Config.schema_url()
     |> HTTPoison.post(data)
-    |> HttpResponse.body
+    |> HttpResponse.body()
   end
 
   defp extract_response(solr_response) do
-    {:ok, %{"schema" => schema}} = solr_response |> Poison.decode
+    {:ok, %{"schema" => schema}} = solr_response |> Jason.decode()
     schema
   end
 end
