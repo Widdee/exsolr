@@ -54,5 +54,5 @@ defmodule Exsolr.Config do
   """
   def schema_url(), do: "#{base_url()}/schema"
 
-  defp base_url(), do: "http://#{hostname()}:#{port()}/solr/#{core()}"
+  defp base_url(), do: "#{hostname()}:#{port()}/solr/#{core()}"
 end

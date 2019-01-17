@@ -21,7 +21,7 @@ use Mix.Config
 config :logger, level: :info
 
 config :exsolr,
-  hostname: "localhost",
+  hostname: "http://localhost",
   port: 8983,
   core: "elixir_test"
 
@@ -31,4 +31,4 @@ config :exsolr,
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"
